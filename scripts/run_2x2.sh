@@ -44,7 +44,19 @@ export OPENFPGA_VPR_ROUTE_CHAN_WIDTH="20"
 export OPENFPGA_OUTPUT_DIR="$repo_root/results/2x2"
 
 if [[ -z "${OPENFPGA_SIM_SETTING_FILE:-}" ]]; then
-  export OPENFPGA_SIM_SETTING_FILE="$OPENFPGA_PATH/openfpga_flow/openfpga_simulation_setting.xml"
+  OPENFPGA_SIM_SETTING_FILE="$(
+    find "$OPENFPGA_PATH" \
+      -type f \
+      -name 'openfpga_simulation_setting.xml' \
+      -print -quit 2>/dev/null
+  )"
+
+  if [[ -z "$OPENFPGA_SIM_SETTING_FILE" ]]; then
+    echo "OpenFPGA simulation settings file not found under $OPENFPGA_PATH" >&2
+    exit 2
+  fi
+
+  export OPENFPGA_SIM_SETTING_FILE
 fi
 
 mkdir -p "$OPENFPGA_OUTPUT_DIR"
