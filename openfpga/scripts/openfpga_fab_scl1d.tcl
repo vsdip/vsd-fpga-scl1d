@@ -9,6 +9,9 @@ vpr $::env(VPR_ARCH_FILE) \
 
 read_openfpga_arch -f $::env(OPENFPGA_ARCH_FILE)
 
+read_openfpga_simulation_setting \
+    -f $::env(OPENFPGA_SIM_SETTING_FILE)
+    
 link_openfpga_arch \
     --activity_file $::env(ACTIVITY_FILE) \
     --sort_gsb_chan_node_in_edges
