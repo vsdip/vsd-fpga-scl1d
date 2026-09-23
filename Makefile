@@ -4,7 +4,7 @@ ROOT := $(CURDIR)
 doctor:
 	bash scripts/codespace_doctor.sh
 install-pdk:
-	bash scripts/install-scl1d-pdk.sh $(ARCHIVE)
+	bash scripts/install-scl1d-pdk.sh "$(ARCHIVE)"
 inspect:
 	python3 scripts/inspect_scl1d.py --pdk-root "$${SCL1D_PDK_ROOT:-$(ROOT)/pdk/local}" --out docs/PDK_INVENTORY.md
 openfpga-shell:
