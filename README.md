@@ -38,3 +38,216 @@ Create a Codespace from:
 
 ```text
 https://github.com/vsdip/vsd-fpga-scl1d
+```
+
+The container configuration must contain:
+
+```json
+{
+  "name": "VSD FPGA SCL1D",
+  "image": "ghcr.io/lnis-uofu/openfpga-master:latest",
+  "overrideCommand": true,
+  "containerEnv": {
+    "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
+    "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
+  },
+  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'"
+}
+```
+
+Do not force the image to run as `remoteUser: openfpga`. Codespaces may provide
+the image's valid runtime user automatically.
+
+## Install the SCL PDK
+
+Keep the downloaded archive outside Git. The `.gitignore` file excludes ZIP and
+TAR archives, and `pdk/local/` is also excluded.
+
+From the repository root:
+
+```bash
+cd /workspaces/vsd-fpga-scl1d
+
+# Find the downloaded archive and create an ASCII-safe filename.
+PDK_ZIP="$(find . -maxdepth 1 -type f -name '*PDK.zip' -print -quit)"
+test -n "$PDK_ZIP"
+cp -- "$PDK_ZIP" ./SCL_PDK.zip
+
+make install-pdk ARCHIVE="$PWD/SCL_PDK.zip"
+export SCL1D_PDK_ROOT="$PWD/pdk/local"
+```
+
+The installer accepts the complete SCL archive, including the nested digital
+payload, and installs:
+
+```text
+pdk/local/open_source_scl_c1d/open_pdks/sclc1d/libs.ref/digital_c1d/
+├── lef/{tech_c1d.lef,core_c1d.lef,io_c1d.lef,corner_c1d.lef}
+├── lib/{nldm_tt_27_1p5.lib,nldm_ff_m25_1p55.lib,nldm_ss_125_2p45.lib}
+├── verilog/c1d.v
+├── cdl/core_iolib_c1d.cdl
+└── gds/{core_c1d.gds,io_c1d.gds}
+```
+
+## Verify the environment
+
+Run:
+
+```bash
+make doctor
+```
+
+Expected checks:
+
+```text
+OpenFPGA: /opt/openfpga/openfpga/openfpga
+VPR: VPR FPGA Placement and Routing.
+Icarus: Icarus Verilog version 11.0
+doctor: PASS
+```
+
+If the OpenFPGA path needs to be inspected manually:
+
+```bash
+find /opt/openfpga -maxdepth 4 -type f -executable \
+  \( -name openfpga -o -name openfpga_shell \) -print
+```
+
+The repository uses `scripts/openfpga_tool.sh` to locate the executable. Do not
+assume that `openfpga_shell` is a standalone command in the prebuilt image.
+
+Generate the PDK inventory with:
+
+```bash
+make inspect
+```
+
+The report is written to `docs/PDK_INVENTORY.md`.
+
+## OpenFPGA command wrapper
+
+Use the repository wrapper rather than calling an assumed binary name:
+
+```bash
+bash scripts/openfpga_shell.sh --help
+```
+
+It supports both the prebuilt Codespaces image and a native OpenFPGA checkout.
+The native installer is intended for ARM64 or non-Codespaces environments only:
+
+```bash
+bash scripts/install-openfpga-native.sh
+source openfpga/OpenFPGA/openfpga.sh
+```
+
+## 2×2 fabric flow
+
+Before running the fabric flow, the following validated project inputs must be
+present:
+
+```text
+openfpga/arch/vpr_arch_2x2.xml
+openfpga/arch/vsd_openfpga_arch_scl1d.xml
+openfpga/arch/scl1d_simulation_setting.xml       # optional
+rtl/<validated SCL primitive wrappers>.v
+```
+
+The architecture files must bind the SCL C1D cells to the OpenFPGA circuit
+models. Do not replace them with Sky130 or Caravel cell names.
+
+Once those files and wrappers are committed:
+
+```bash
+make run-2x2
+```
+
+The flow is:
+
+```text
+VPR architecture + BLIF
+  → VPR pack/place/route
+  → OpenFPGA architecture linking
+  → fabric generation
+  → configuration bitstream generation
+  → structural Verilog generation
+  → simulation testbench generation
+```
+
+Results are written under `results/2x2/`.
+
+## SCL cell mapping
+
+| Fabric function | SCL cell or implementation |
+|---|---|
+| Configuration-memory scan FF | `DFFL11` |
+| User logic FF | `DFCL11` or `DFFL11` |
+| 2:1 routing mux | `MX2101` |
+| 4:1 mux tree | `MX4122` or `MX2101` tree |
+| Local buffer/inverter | `DELBUF`, `INVR01`–`INVR06` |
+| Clock fanout | `CDRI01`/`CDRI02` with constrained clock routing |
+| Input/output GPIO | Explicit `in`, `out`, `oeb` wrapper around SCL pad cells |
+| Core power ties | `VDDCON`, `VSSCON` |
+| Row closure | `FILLER1`–`FILLER5` |
+
+Validate every wrapper against the SCL Verilog, Liberty, LEF, CDL and GDS views.
+Pay particular attention to pin order and active-low control signals.
+
+## 5 mm × 5 mm padframe guidance
+
+The SCL I/O cells are approximately 305 µm deep and approximately 200–286 µm
+wide. The pad ring therefore consumes a substantial portion of the outline.
+The 2×2 fabric is the correct first closure target. Fabric size must ultimately
+be decided by OpenROAD placement/routing, power straps, configuration-chain
+length, clock fanout, antenna checks, DRC/LVS and the final pad-ring DEF—not by
+standard-cell count alone.
+
+## Repository boundaries
+
+This repository covers:
+
+- OpenFPGA/VPR architecture inputs
+- SCL primitive wrappers
+- generated fabric Verilog and bitstreams
+- small functional benchmarks
+- PDK inspection and Codespace automation
+- the path to synthesis, placement, routing and GDS
+
+It does not redistribute the SCL PDK and does not yet include a CPU, bus, BRAM,
+DSP, production padframe, or signoff timing characterization.
+
+## Troubleshooting
+
+### `make doctor` reports OpenFPGA missing
+
+Check the executable location:
+
+```bash
+find /opt/openfpga -maxdepth 4 -type f -executable \
+  \( -name openfpga -o -name openfpga_shell \) -print
+```
+
+Then make sure the repository contains the updated `scripts/openfpga_tool.sh`,
+`scripts/openfpga_shell.sh` and `scripts/codespace_doctor.sh` files.
+
+### Codespace enters recovery mode
+
+Check that:
+
+- `remoteUser: openfpga` is absent;
+- `overrideCommand` is `true`;
+- `postCreateCommand` is only an `echo` command;
+- `make doctor` is not executed automatically before the PDK is installed.
+
+Commit and push the configuration, then run **Codespaces: Rebuild Container**.
+
+### `make run-2x2` reports missing XML files
+
+The validated architecture XMLs and SCL primitive wrappers have not yet been
+committed. Add those files from the validated 2×2 OpenFPGA run before attempting
+fabric generation.
+
+## License and PDK boundary
+
+The repository automation is intended for VSD's SCL 1.2 µm FPGA development flow.
+The SCL PDK remains subject to its own access terms and must be obtained from the
+authorised source.
