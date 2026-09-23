@@ -14,6 +14,6 @@
       ]
     }
   },
-  "postCreateCommand": "bash -lc 'echo Codespace ready; install the PDK, then run make doctor'",
+  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'",
   "overrideCommand": true
 }
