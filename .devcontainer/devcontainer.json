@@ -1,0 +1,11 @@
+{
+  "name": "VSD FPGA SCL1D",
+  "image": "ghcr.io/lnis-uofu/openfpga-master:latest",
+  "remoteUser": "openfpga",
+  "containerEnv": {
+    "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
+    "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
+  },
+  "customizations": {"vscode": {"extensions": ["ms-vscode.cpptools", "mshr-h.veriloghdl", "surfer-project.surfer"]}},
+  "postCreateCommand": "bash scripts/codespace_doctor.sh"
+}

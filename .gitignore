@@ -1,0 +1,7 @@
+results/*
+!results/.gitkeep
+pdk/local/
+openfpga/build/
+openfpga/OpenFPGA/
+*.zip
+*.tar.gz
