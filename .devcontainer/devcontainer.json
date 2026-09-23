@@ -6,14 +6,6 @@
     "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
     "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
   },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-vscode.cpptools",
-        "mshr-h.veriloghdl",
-        "surfer-project.surfer"
-      ]
-    }
-  },
+  "customizations": {"vscode": {"extensions": ["ms-vscode.cpptools", "mshr-h.veriloghdl", "surfer-project.surfer"]}},
   "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'"
 }
