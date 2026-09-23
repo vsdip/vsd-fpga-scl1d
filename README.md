@@ -1,253 +1,190 @@
 # vsd-fpga-scl1d
 
-OpenFPGA-based Generation-0 embedded FPGA fabric for the SCL 1.2 µm C1D process.
+A small OpenFPGA fabric targeting the SCL 1.2 µm C1D digital PDK. The first milestone is a 2×2 CLB fabric, generated and tested in GitHub Codespaces.
 
-This repository contains the OpenFPGA/VPR flow, SCL-aware documentation, test
-benchmarks and automation scripts. The SCL PDK itself is not redistributed or
-committed to GitHub. Obtain it through the authorised SCL/eChipHub route and
-install it locally inside the Codespace.
+**Current result:** The AND2 benchmark completed VPR routing and the OpenFPGA generation flow. OpenFPGA wrote fabric Verilog, bitstreams and SDC files, then reported `Finish execution with 0 errors`. Physical placement, metal routing, DRC/LVS and padframe integration are still to be done.
 
-## Current status
+The SCL PDK is installed locally. It is not included in this repository.
 
-The first recommended silicon target is a validated 2×2 fabric:
+## Fabric defined by the current architecture
 
-- 4 CLBs
-- 16 FLEs
-- 32 LUT4s
-- 64 user flip-flops
-- 20 routing tracks
-- L1/L2 routing
-- 8 GPIO
-- approximately 2,321 configuration-chain bits
-- 5 V operation
-- 1 MHz initial user-clock target
+| Resource | 2×2 architecture |
+|---|---:|
+| CLBs | 4 |
+| FLEs | 32: eight per CLB |
+| LUT4 positions | 32: one per FLE |
+| User flip-flop positions | Up to 64: two per FLE |
+| Perimeter GPIO positions | 8 |
 
-This is a qualification target for SCL 1.2 µm. Attempt a 4×4 fabric only after
-the 2×2 fabric passes generation, simulation, synthesis, placement, routing,
-DRC/LVS and padframe integration. An 8×8 fabric is not recommended as the first
-fabric for a 5 mm × 5 mm padframe.
+The VPR architecture defines L1, L2 and L4 routing segments. The current OpenFPGA script requests **VPR channel width 100**; this is a logical routing setting, not a measured number of physical metal tracks. One completed generation run reported **2,232 fabric bitstream bits**. Recheck that count whenever the architecture changes.
 
-## GitHub Codespaces setup
+The simulation settings file specifies 1 MHz as an operating frequency. This is a flow setting, **not** a verified maximum clock frequency for silicon.
 
-The devcontainer uses the OpenFPGA-maintained prebuilt image. The image already
-contains VPR and Icarus. The repository scripts resolve the OpenFPGA executable
-from the image layout; users should not run the native OpenFPGA build in the
-normal Codespace.
+## Start a Codespace
 
-Create a Codespace from:
+Create a Codespace from [vsdip/vsd-fpga-scl1d](https://github.com/vsdip/vsd-fpga-scl1d).
 
-```text
-https://github.com/vsdip/vsd-fpga-scl1d
+The repository’s `.devcontainer/devcontainer.json` builds `.devcontainer/Dockerfile` from the OpenFPGA image and runs as `openfpga_user`. The Dockerfile installs development utilities, including `unzip` and `sudo`. A fresh Codespace still needs a local copy of the SCL PDK.
+
+Use a terminal in the repository root:
+
+```bash
+cd /workspaces/vsd-fpga-scl1d
 ```
 
-The container configuration must contain:
-
-```json
-{
-  "name": "VSD FPGA SCL1D",
-  "image": "ghcr.io/lnis-uofu/openfpga-master:latest",
-  "overrideCommand": true,
-  "containerEnv": {
-    "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
-    "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
-  },
-  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'"
-}
-```
-
-Do not force the image to run as `remoteUser: openfpga`. Codespaces may provide
-the image's valid runtime user automatically.
+Do not run `make doctor` until the PDK installation below is complete.
 
 ## Install the SCL PDK
 
-Keep the downloaded archive outside Git. The `.gitignore` file excludes ZIP and
-TAR archives, and `pdk/local/` is also excluded.
+Obtain the SCL 1.2 µm C1D PDK through your authorised source. Upload the ZIP **into the Codespace workspace**, rather than committing it to GitHub.
 
-From the repository root:
+If the downloaded filename contains `µ` or other special characters, give it an ASCII filename:
 
 ```bash
 cd /workspaces/vsd-fpga-scl1d
 
-# Find the downloaded archive and create an ASCII-safe filename.
 PDK_ZIP="$(find . -maxdepth 1 -type f -name '*PDK.zip' -print -quit)"
-test -n "$PDK_ZIP"
+test -n "$PDK_ZIP" || { echo "PDK ZIP not found in repository root"; exit 1; }
 cp -- "$PDK_ZIP" ./SCL_PDK.zip
 
 make install-pdk ARCHIVE="$PWD/SCL_PDK.zip"
 export SCL1D_PDK_ROOT="$PWD/pdk/local"
 ```
 
-The installer accepts the complete SCL archive, including the nested digital
-payload, and installs:
+If your archive is already named `SCL_PDK.zip`, run only the `make install-pdk` and `export` commands.
+
+The installer unpacks the nested digital payload under:
 
 ```text
 pdk/local/open_source_scl_c1d/open_pdks/sclc1d/libs.ref/digital_c1d/
-├── lef/{tech_c1d.lef,core_c1d.lef,io_c1d.lef,corner_c1d.lef}
-├── lib/{nldm_tt_27_1p5.lib,nldm_ff_m25_1p55.lib,nldm_ss_125_2p45.lib}
-├── verilog/c1d.v
-├── cdl/core_iolib_c1d.cdl
-└── gds/{core_c1d.gds,io_c1d.gds}
 ```
 
-## Verify the environment
+That directory should contain the core and I/O LEFs, Liberty files, `c1d.v`, CDL and GDS cell libraries. `pdk/local/` and ZIP files are excluded by `.gitignore`.
 
-Run:
+## Check the installation
 
 ```bash
 make doctor
+make inspect
+bash scripts/openfpga_shell.sh --help
 ```
 
-Expected checks:
+In the tested Codespace, `make doctor` found:
 
 ```text
-OpenFPGA: /opt/openfpga/openfpga/openfpga
+OpenFPGA: /opt/openfpga/build/openfpga/openfpga
 VPR: VPR FPGA Placement and Routing.
 Icarus: Icarus Verilog version 11.0
 doctor: PASS
 ```
 
-If the OpenFPGA path needs to be inspected manually:
+The executable path may differ in another image. The repository wrapper locates it; use `bash scripts/openfpga_shell.sh`, not an assumed `openfpga_shell` command.
 
-```bash
-find /opt/openfpga -maxdepth 4 -type f -executable \
-  \( -name openfpga -o -name openfpga_shell \) -print
-```
+`make inspect` writes a PDK inventory to `docs/PDK_INVENTORY.md`. Review that file before committing it, since running the command updates the inventory with paths from your current Codespace.
 
-The repository uses `scripts/openfpga_tool.sh` to locate the executable. Do not
-assume that `openfpga_shell` is a standalone command in the prebuilt image.
+## Generate the 2×2 fabric
 
-Generate the PDK inventory with:
+The required VPR architecture, OpenFPGA architecture, simulation settings, AND2 benchmark and SCL primitive wrappers are committed to the repository.
 
-```bash
-make inspect
-```
-
-The report is written to `docs/PDK_INVENTORY.md`.
-
-## OpenFPGA command wrapper
-
-Use the repository wrapper rather than calling an assumed binary name:
-
-```bash
-bash scripts/openfpga_shell.sh --help
-```
-
-It supports both the prebuilt Codespaces image and a native OpenFPGA checkout.
-The native installer is intended for ARM64 or non-Codespaces environments only:
-
-```bash
-bash scripts/install-openfpga-native.sh
-source openfpga/OpenFPGA/openfpga.sh
-```
-
-## 2×2 fabric flow
-
-Before running the fabric flow, the following validated project inputs must be
-present:
-
-```text
-openfpga/arch/vpr_arch_2x2.xml
-openfpga/arch/vsd_openfpga_arch_scl1d.xml
-openfpga/arch/scl1d_simulation_setting.xml       # optional
-rtl/<validated SCL primitive wrappers>.v
-```
-
-The architecture files must bind the SCL C1D cells to the OpenFPGA circuit
-models. Do not replace them with Sky130 or Caravel cell names.
-
-Once those files and wrappers are committed:
+Run:
 
 ```bash
 make run-2x2
 ```
 
-The flow is:
+Look for **`Finish execution with 0 errors`** at the end of the OpenFPGA output. Key generated files are under `results/2x2/`:
 
 ```text
-VPR architecture + BLIF
-  → VPR pack/place/route
-  → OpenFPGA architecture linking
-  → fabric generation
-  → configuration bitstream generation
-  → structural Verilog generation
-  → simulation testbench generation
+results/2x2/
+├── fabric_bitstream.bit
+├── fabric_bitstream.xml
+├── fabric_independent_bitstream.xml
+├── SRC/                 # Generated structural fabric Verilog
+├── SDC/                 # Physical-design constraints
+└── SDC_analysis/        # Analysis constraints
 ```
 
-Results are written under `results/2x2/`.
+The script runs VPR pack/place/route, links the OpenFPGA architecture, builds the fabric, generates bitstreams and writes Verilog and SDC files. **It does not currently generate or run a Verilog testbench.**
 
-## SCL cell mapping
+`results/` is excluded by `.gitignore`. A new Codespace must run the flow again to recreate these files.
 
-| Fabric function | SCL cell or implementation |
+## What the SCL mapping currently covers
+
+`rtl/vsd_scl_primitives.v` defines wrappers using these SCL digital cells:
+
+| Function | Cell used by the wrapper |
 |---|---|
-| Configuration-memory scan FF | `DFFL11` |
-| User logic FF | `DFCL11` or `DFFL11` |
-| 2:1 routing mux | `MX2101` |
-| 4:1 mux tree | `MX4122` or `MX2101` tree |
-| Local buffer/inverter | `DELBUF`, `INVR01`–`INVR06` |
-| Clock fanout | `CDRI01`/`CDRI02` with constrained clock routing |
-| Input/output GPIO | Explicit `in`, `out`, `oeb` wrapper around SCL pad cells |
-| Core power ties | `VDDCON`, `VSSCON` |
-| Row closure | `FILLER1`–`FILLER5` |
+| Configuration flip-flop | `DFFL11` |
+| User flip-flop with clear and scan selection | `DFCL11` and `MX2101` |
+| Routing mux | `MX2101` |
+| Inverter | `INVR01` or `INVR02` |
+| Buffer | `DELBUF` |
+| OR gate | `OR2101` |
 
-Validate every wrapper against the SCL Verilog, Liberty, LEF, CDL and GDS views.
-Pay particular attention to pin order and active-low control signals.
+The current GPIO wrapper is a **functional simulation model** with temporary bidirectional behavior. It is not a placed SCL I/O pad or a finished padframe.
 
-## 5 mm × 5 mm padframe guidance
+**Before treating the generated Verilog as physically mapped SCL hardware:** the committed OpenFPGA architecture XML refers to `rtl/primitives/vsd_scl_primitives.v`, while the repository currently stores the wrapper at `rtl/vsd_scl_primitives.v`. Its technology section also references a PTM 45 nm model. These references need correction and SCL-specific validation. Successful fabric generation alone does not establish correct SCL timing or physical cell mapping.
 
-The SCL I/O cells are approximately 305 µm deep and approximately 200–286 µm
-wide. The pad ring therefore consumes a substantial portion of the outline.
-The 2×2 fabric is the correct first closure target. Fabric size must ultimately
-be decided by OpenROAD placement/routing, power straps, configuration-chain
-length, clock fanout, antenna checks, DRC/LVS and the final pad-ring DEF—not by
-standard-cell count alone.
+## Viewing the result
 
-## Repository boundaries
+The OpenFPGA result is **Verilog and bitstream data, not a routed GDS layout**. Inspect generated structural Verilog under `results/2x2/SRC/`.
 
-This repository covers:
+The PDK’s `core_c1d.gds` and `io_c1d.gds` show individual SCL library cells. Opening either in KLayout through a Codespace desktop or noVNC session displays those library cells; it does **not** display the generated FPGA fabric. A view of the full fabric requires synthesis, physical placement and routing, and GDS export.
 
-- OpenFPGA/VPR architecture inputs
-- SCL primitive wrappers
-- generated fabric Verilog and bitstreams
-- small functional benchmarks
-- PDK inspection and Codespace automation
-- the path to synthesis, placement, routing and GDS
+KLayout and noVNC are not installed by this repository’s current Dockerfile. Install and configure a desktop viewer separately if needed.
 
-It does not redistribute the SCL PDK and does not yet include a CPU, bus, BRAM,
-DSP, production padframe, or signoff timing characterization.
+## 5 mm × 5 mm target
+
+The proposed padframe outline is 5 mm × 5 mm. The SCL pad cells occupy substantial perimeter space, so **2×2 is the first physical closure target**. The present VPR routing success does not prove that the design fits or routes on the PDK’s physical metal layers.
+
+Before selecting a larger fabric, complete:
+
+1. Functional simulation with the SCL models.
+2. Synthesis and cell mapping against SCL Liberty and Verilog.
+3. Floorplanning with the intended SCL I/O cells, power pads and core boundary.
+4. Placement, clock and power planning, and detailed routing using the available metal layers.
+5. DRC, LVS and timing checks on the resulting layout.
+
+Consider 4×4 only after those checks pass for 2×2.
 
 ## Troubleshooting
 
+### `make install-pdk` cannot find the archive
+
+Put the ZIP in the Codespace workspace and pass its full path in quotes:
+
+```bash
+make install-pdk ARCHIVE="$PWD/SCL_PDK.zip"
+```
+
+### `make doctor` reports missing PDK files
+
+Recheck that installation completed and that the root points to `pdk/local`:
+
+```bash
+export SCL1D_PDK_ROOT="$PWD/pdk/local"
+make doctor
+```
+
 ### `make doctor` reports OpenFPGA missing
 
-Check the executable location:
+Check the binary location:
 
 ```bash
 find /opt/openfpga -maxdepth 4 -type f -executable \
   \( -name openfpga -o -name openfpga_shell \) -print
 ```
 
-Then make sure the repository contains the updated `scripts/openfpga_tool.sh`,
-`scripts/openfpga_shell.sh` and `scripts/codespace_doctor.sh` files.
+Then check that the Codespace was built from this repository’s `.devcontainer` configuration.
 
-### Codespace enters recovery mode
+### The Codespace opens in recovery mode
 
-Check that:
+Inspect the Codespace creation log. The committed configuration builds `.devcontainer/Dockerfile`, sets `remoteUser` to `openfpga_user`, and uses a `postCreateCommand` that only prints a message. After fixing a configuration error on GitHub, rebuild the container.
 
-- `remoteUser: openfpga` is absent;
-- `overrideCommand` is `true`;
-- `postCreateCommand` is only an `echo` command;
-- `make doctor` is not executed automatically before the PDK is installed.
+### `sudo` is unavailable
 
-Commit and push the configuration, then run **Codespaces: Rebuild Container**.
+The repository Dockerfile installs `sudo` for `openfpga_user`. Rebuild the Codespace from the current `.devcontainer` files. Removing an APT lock file will not fix a container that was built without `sudo`.
 
-### `make run-2x2` reports missing XML files
+## Repository scope
 
-The validated architecture XMLs and SCL primitive wrappers have not yet been
-committed. Add those files from the validated 2×2 OpenFPGA run before attempting
-fabric generation.
-
-## License and PDK boundary
-
-The repository automation is intended for VSD's SCL 1.2 µm FPGA development flow.
-The SCL PDK remains subject to its own access terms and must be obtained from the
-authorised source.
+The repository tracks the OpenFPGA/VPR inputs, primitive wrappers, benchmarks, scripts and documentation. It does not redistribute the SCL PDK or commit generated `results/` files. A CPU, BRAM, DSP, production padframe and signoff-ready physical flow are outside the current 2×2 generation milestone.
