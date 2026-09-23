@@ -51,11 +51,6 @@ if [[ -z "${OPENFPGA_SIM_SETTING_FILE:-}" ]]; then
       -print -quit 2>/dev/null
   )"
 
-  if [[ -z "$OPENFPGA_SIM_SETTING_FILE" ]]; then
-    echo "OpenFPGA simulation settings file not found under $OPENFPGA_PATH" >&2
-    exit 2
-  fi
-
   export OPENFPGA_SIM_SETTING_FILE
 fi
 
