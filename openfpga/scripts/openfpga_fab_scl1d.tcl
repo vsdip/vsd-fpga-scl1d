@@ -9,9 +9,6 @@ vpr $::env(VPR_ARCH_FILE) \
 
 read_openfpga_arch -f $::env(OPENFPGA_ARCH_FILE)
 
-read_openfpga_simulation_setting \
-    -f $::env(OPENFPGA_SIM_SETTING_FILE)
-
 link_openfpga_arch \
     --activity_file $::env(ACTIVITY_FILE) \
     --sort_gsb_chan_node_in_edges
@@ -50,13 +47,6 @@ write_fabric_verilog \
     --support_icarus_simulator \
     --print_user_defined_template
 
-write_verilog_testbench \
-    --file $::env(OPENFPGA_OUTPUT_DIR)/SRC \
-    --reference_benchmark_file_path $::env(VPR_TESTBENCH_VERILOG) \
-    --print_top_testbench \
-    --print_preconfig_top_testbench \
-    --print_simulation_ini $::env(OPENFPGA_OUTPUT_DIR)/simulation_deck.ini \
-    --explicit_port_mapping
 
 write_pnr_sdc \
     --file $::env(OPENFPGA_OUTPUT_DIR)/SDC
