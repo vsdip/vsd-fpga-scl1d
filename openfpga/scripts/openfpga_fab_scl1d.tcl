@@ -45,8 +45,6 @@ write_fabric_verilog \
     --file $::env(OPENFPGA_OUTPUT_DIR)/SRC \
     --explicit_port_mapping \
     --include_timing \
-    --include_signal_init \
-    --support_icarus_simulator \
     --print_user_defined_template
 
 
