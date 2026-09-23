@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openfpga_simulation_setting>
   <clock_setting>
-    <operating
-      frequency="auto"
-      num_cycles="auto"
-      slack="0.2"/>
+ <operating frequency="1000000" num_cycles="10" slack="0.0"/>
 
     <programming
       frequency="100e6"/>
