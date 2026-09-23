@@ -7,6 +7,8 @@ openfpga_bin="$(bash scripts/openfpga_tool.sh --print-path)"
 if [[ -z "${OPENFPGA_PATH:-}" ]]; then
   case "$openfpga_bin" in
     */openfpga/openfpga) export OPENFPGA_PATH="${openfpga_bin%/openfpga/openfpga}" ;;
+    */build/openfpga/openfpga) export OPENFPGA_PATH="${openfpga_bin%/build/openfpga/openfpga}" ;;
+    */build/openfpga) export OPENFPGA_PATH="${openfpga_bin%/build/openfpga}" ;;
     */openfpga) export OPENFPGA_PATH="${openfpga_bin%/openfpga}" ;;
     *) echo "Cannot derive OPENFPGA_PATH from $openfpga_bin" >&2; exit 2 ;;
   esac
