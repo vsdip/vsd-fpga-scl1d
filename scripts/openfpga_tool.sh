@@ -34,6 +34,10 @@ binary_candidates=(
   "$(pwd)/openfpga/OpenFPGA/openfpga"
   "/opt/openfpga/openfpga/openfpga"
   "/opt/openfpga/openfpga"
+  "${OPENFPGA_PATH:-}/build/openfpga/openfpga"
+  "${OPENFPGA_PATH:-}/build/openfpga"
+  "/opt/openfpga/build/openfpga/openfpga"
+  "/opt/openfpga/build/openfpga"
 )
 
 for command_name in openfpga_shell openfpga; do
