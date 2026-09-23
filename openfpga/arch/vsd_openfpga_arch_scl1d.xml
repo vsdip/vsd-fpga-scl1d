@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='utf-8'?>
+<openfpga_architecture>
+  <technology_library>
+    <device_library>
+      <device_model name="logic" type="transistor">
+        <lib type="industry" corner="TOP_TT" ref="M" path="${OPENFPGA_PATH}/openfpga_flow/tech/PTM_45nm/45nm.pm" />
+        <design vdd="5.0" pn_ratio="2" />
+        <pmos name="pch" chan_length="1.2e-6" min_width="140e-9" variation="logic_transistor_var" />
+        <nmos name="nch" chan_length="1.2e-6" min_width="140e-9" variation="logic_transistor_var" />
+      </device_model>
+      <device_model name="io" type="transistor">
+        <lib type="academia" ref="M" path="${OPENFPGA_PATH}/openfpga_flow/tech/PTM_45nm/45nm.pm" />
+        <design vdd="5.0" pn_ratio="3" />
+        <pmos name="pch_25" chan_length="1.2e-6" min_width="320e-9" variation="io_transistor_var" />
+        <nmos name="nch_25" chan_length="1.2e-6" min_width="320e-9" variation="io_transistor_var" />
+      </device_model>
+    </device_library>
+    <variation_library>
+      <variation name="logic_transistor_var" abs_deviation="0.1" num_sigma="3" />
+      <variation name="io_transistor_var" abs_deviation="0.1" num_sigma="3" />
+    </variation_library>
+  </technology_library>
+  <circuit_library>
+    <circuit_model type="inv_buf" name="vsd_scl_inv" prefix="vsd_scl_inv" is_default="true" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="inverter" size="1" />
+      <device_technology device_model_name="logic" />
+      <port type="input" prefix="in" lib_name="a" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+      <delay_matrix type="rise" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+      <delay_matrix type="fall" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+    </circuit_model>
+    <circuit_model type="inv_buf" name="vsd_scl_buf" prefix="vsd_scl_buf" is_default="false" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="buffer" size="1" num_level="2" f_per_stage="2" />
+      <device_technology device_model_name="logic" />
+      <port type="input" prefix="in" lib_name="a" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+      <delay_matrix type="rise" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+      <delay_matrix type="fall" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+    </circuit_model>
+    <circuit_model type="inv_buf" name="vsd_scl_buf4" prefix="vsd_scl_buf4" is_default="false" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="buffer" size="1" num_level="2" f_per_stage="4" />
+      <device_technology device_model_name="logic" />
+      <port type="input" prefix="in" lib_name="a" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+      <delay_matrix type="rise" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+      <delay_matrix type="fall" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+    </circuit_model>
+    <circuit_model type="inv_buf" name="vsd_scl_inv2" prefix="vsd_scl_inv2" is_default="false" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="buffer" size="1" />
+      <device_technology device_model_name="logic" />
+      <port type="input" prefix="in" lib_name="a" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+      <delay_matrix type="rise" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+      <delay_matrix type="fall" in_port="in" out_port="out">
+        10e-12
+      </delay_matrix>
+    </circuit_model>
+    <circuit_model type="gate" name="vsd_scl_or2" prefix="vsd_scl_or2" is_default="true" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="OR" />
+      <device_technology device_model_name="logic" />
+      <input_buffer exist="false" />
+      <output_buffer exist="false" />
+      <port type="input" prefix="a" lib_name="a" size="1" />
+      <port type="input" prefix="b" lib_name="b" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+      <delay_matrix type="rise" in_port="a b" out_port="out">
+        10e-12 5e-12
+      </delay_matrix>
+      <delay_matrix type="fall" in_port="a b" out_port="out">
+        10e-12 5e-12
+      </delay_matrix>
+    </circuit_model>
+    <circuit_model type="gate" name="vsd_scl_mux2" prefix="vsd_scl_mux2" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" topology="MUX2" />
+      <device_technology device_model_name="logic" />
+      <input_buffer exist="false" />
+      <output_buffer exist="false" />
+      <port type="input" prefix="in0" lib_name="d1" size="1" />
+      <port type="input" prefix="in1" lib_name="d0" size="1" />
+      <port type="input" prefix="sel" lib_name="sel" size="1" />
+      <port type="output" prefix="out" lib_name="y" size="1" />
+    </circuit_model>
+    <circuit_model type="chan_wire" name="vsd_chan_segment" prefix="vsd_track_segment" is_default="true">
+      <design_technology type="cmos" />
+      <input_buffer exist="false" />
+      <output_buffer exist="false" />
+      <port type="input" prefix="in" size="1" />
+      <port type="output" prefix="out" size="1" />
+      <wire_param model_type="pi" R="101" C="22.5e-15" num_level="1" />
+    </circuit_model>
+    <circuit_model type="wire" name="vsd_direct_interc" prefix="vsd_direct_interc" is_default="true">
+      <design_technology type="cmos" />
+      <input_buffer exist="false" />
+      <output_buffer exist="false" />
+      <port type="input" prefix="in" size="1" />
+      <port type="output" prefix="out" size="1" />
+      <wire_param model_type="pi" R="0" C="0" num_level="1" />
+    </circuit_model>
+    <circuit_model type="mux" name="vsd_mux_tree" prefix="vsd_mux_tree" is_default="true" dump_structural_verilog="true">
+      <design_technology type="cmos" structure="tree" add_const_input="true" const_input_val="1" />
+      <input_buffer exist="false" />
+      <output_buffer exist="false" />
+      <pass_gate_logic circuit_model_name="vsd_scl_mux2" />
+      <port type="input" prefix="in" size="1" />
+      <port type="output" prefix="out" size="1" />
+      <port type="sram" prefix="sram" size="1" />
+    </circuit_model>
+    <circuit_model type="mux" name="vsd_mux_tree_tapbuf" prefix="vsd_mux_tree_tapbuf" dump_structural_verilog="true">
+      <design_technology type="cmos" structure="tree" add_const_input="true" const_input_val="1" />
+      <input_buffer exist="false" />
+      <output_buffer exist="true" circuit_model_name="vsd_scl_buf4" />
+      <pass_gate_logic circuit_model_name="vsd_scl_mux2" />
+      <port type="input" prefix="in" size="1" />
+      <port type="output" prefix="out" size="1" />
+      <port type="sram" prefix="sram" size="1" />
+    </circuit_model>
+    <circuit_model type="ff" name="vsd_scl_user_scan_ff" prefix="vsd_scl_user_scan_ff" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" />
+      <input_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <output_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <port type="input" prefix="D" size="1" lib_name="functional_d" />
+      <port type="input" prefix="DI" lib_name="scan_d" size="1" />
+      <port type="input" prefix="Test_en" lib_name="scan_enable" size="1" is_global="true" default_val="0" />
+      <port type="output" prefix="Q" size="1" lib_name="q" />
+      <port type="clock" prefix="clk" lib_name="user_clk" size="1" is_global="true" default_val="0" />
+      <port type="input" prefix="reset_n" lib_name="user_reset_n" size="1" is_global="true" default_val="1" is_reset="true" />
+    </circuit_model>
+    <circuit_model type="lut" name="vsd_frac_lut4" prefix="vsd_frac_lut4" dump_structural_verilog="true">
+      <design_technology type="cmos" fracturable_lut="true" />
+      <input_buffer exist="false" />
+      <output_buffer exist="true" circuit_model_name="vsd_scl_buf" />
+      <lut_input_inverter exist="true" circuit_model_name="vsd_scl_inv" />
+      <lut_input_buffer exist="true" circuit_model_name="vsd_scl_buf" />
+      <lut_intermediate_buffer exist="true" circuit_model_name="vsd_scl_buf" location_map="-1-" />
+      <pass_gate_logic circuit_model_name="vsd_scl_mux2" />
+      <port type="input" prefix="in" size="4" tri_state_map="---1" circuit_model_name="vsd_scl_or2" />
+      <port type="output" prefix="lut3_out" size="2" lut_frac_level="3" lut_output_mask="0,1" />
+      <port type="output" prefix="lut4_out" size="1" lut_output_mask="0" />
+      <port type="sram" prefix="sram" size="16" />
+      <port type="sram" prefix="mode" size="1" mode_select="true" circuit_model_name="vsd_scl_cfg_ff" default_val="1" />
+    </circuit_model>
+    <circuit_model type="ccff" name="vsd_scl_cfg_ff" prefix="vsd_scl_cfg_ff" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" />
+      <input_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <output_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <port type="input" prefix="D" size="1" lib_name="cfg_d" />
+      <port type="output" prefix="Q" size="1" lib_name="cfg_q" />
+      <port type="output" prefix="Q_N" size="1" lib_name="cfg_qb" />
+      <port type="clock" prefix="prog_clk" lib_name="prog_clk" size="1" is_global="true" default_val="0" is_prog="true" />
+    </circuit_model>
+    <circuit_model type="iopad" name="vsd_scl_gpio" prefix="vsd_scl_gpio" verilog_netlist="${OPENFPGA_PATH}/../../rtl/primitives/vsd_scl_primitives.v">
+      <design_technology type="cmos" />
+      <input_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <output_buffer exist="true" circuit_model_name="vsd_scl_inv" />
+      <port type="inout" prefix="Y" lib_name="Y" size="1" is_global="true" is_io="true" is_data_io="true" />
+      <port type="output" prefix="A" lib_name="A" size="1" is_global="true" is_io="true" />
+      <port type="sram" prefix="en" lib_name="mem_out" size="1" mode_select="true" circuit_model_name="vsd_scl_cfg_ff" default_val="1" />
+      <port type="output" prefix="IE" lib_name="IE" size="1" is_global="true" is_io="true" />
+      <port type="output" prefix="OE" lib_name="OE" size="1" is_global="true" is_io="true" />
+      <port type="input" prefix="outpad" lib_name="in" size="1" />
+      <port type="output" prefix="inpad" lib_name="out" size="1" />
+    </circuit_model>
+  </circuit_library>
+  <configuration_protocol>
+    <organization type="scan_chain" circuit_model_name="vsd_scl_cfg_ff" num_regions="1" />
+  </configuration_protocol>
+  <connection_block>
+    <switch name="ipin_cblock" circuit_model_name="vsd_mux_tree_tapbuf" />
+  </connection_block>
+  <switch_block>
+    <switch name="L1_mux" circuit_model_name="vsd_mux_tree_tapbuf" />
+    <switch name="L2_mux" circuit_model_name="vsd_mux_tree_tapbuf" />
+    <switch name="L4_mux" circuit_model_name="vsd_mux_tree_tapbuf" />
+  </switch_block>
+  <routing_segment>
+    <segment name="L1" circuit_model_name="vsd_chan_segment" />
+    <segment name="L2" circuit_model_name="vsd_chan_segment" />
+    <segment name="L4" circuit_model_name="vsd_chan_segment" />
+  </routing_segment>
+  <direct_connection>
+    <direct name="shift_register" circuit_model_name="vsd_direct_interc" type="inter_column" x_dir="positive" y_dir="positive" />
+    <direct name="scan_chain" circuit_model_name="vsd_direct_interc" type="inter_column" x_dir="positive" y_dir="positive" />
+  </direct_connection>
+  <pb_type_annotations>
+    <pb_type name="io" physical_mode_name="physical" idle_mode_name="inpad" />
+    <pb_type name="io[physical].iopad" circuit_model_name="vsd_scl_gpio" mode_bits="1" />
+    <pb_type name="io[inpad].inpad" physical_pb_type_name="io[physical].iopad" mode_bits="1" />
+    <pb_type name="io[outpad].outpad" physical_pb_type_name="io[physical].iopad" mode_bits="0" />
+    <pb_type name="clb">
+      <interconnect name="crossbar" circuit_model_name="vsd_mux_tree" />
+    </pb_type>
+    <pb_type name="clb.fle" physical_mode_name="physical" />
+    <pb_type name="clb.fle[physical].fabric.frac_logic.frac_lut4" circuit_model_name="vsd_frac_lut4" mode_bits="0" />
+    <pb_type name="clb.fle[physical].fabric.ff" circuit_model_name="vsd_scl_user_scan_ff" />
+    <pb_type name="clb.fle[n2_lut3].lut3inter.ble3.lut3" physical_pb_type_name="clb.fle[physical].fabric.frac_logic.frac_lut4" mode_bits="1" physical_pb_type_index_factor="0.5">
+      <port name="in" physical_mode_port="in[0:2]" />
+      <port name="out" physical_mode_port="lut3_out[0:0]" physical_mode_pin_rotate_offset="1" />
+    </pb_type>
+    <pb_type name="clb.fle[n2_lut3].lut3inter.ble3.ff" physical_pb_type_name="clb.fle[physical].fabric.ff" />
+    <pb_type name="clb.fle[n1_lut4].ble4.lut4" physical_pb_type_name="clb.fle[physical].fabric.frac_logic.frac_lut4" mode_bits="0">
+      <port name="in" physical_mode_port="in[0:3]" />
+      <port name="out" physical_mode_port="lut4_out" />
+    </pb_type>
+    <pb_type name="clb.fle[n1_lut4].ble4.ff" physical_pb_type_name="clb.fle[physical].fabric.ff" physical_pb_type_index_factor="2" physical_pb_type_index_offset="0" />
+    <pb_type name="clb.fle[shift_register].shift_reg.ff" physical_pb_type_name="clb.fle[physical].fabric.ff" />
+  </pb_type_annotations>
+</openfpga_architecture>
