@@ -42,6 +42,7 @@ export VPR_TESTBENCH_VERILOG="$repo_root/openfpga/benchmarks/and2.v"
 export ACTIVITY_FILE="$repo_root/openfpga/benchmarks/and2.act"
 export OPENFPGA_VPR_ROUTE_CHAN_WIDTH="20"
 export OPENFPGA_OUTPUT_DIR="$repo_root/results/2x2"
+export OPENFPGA_SIM_SETTING_FILE="$repo_root/openfpga/arch/scl1d_simulation_setting.xml"
 
 if [[ -z "${OPENFPGA_SIM_SETTING_FILE:-}" ]]; then
   OPENFPGA_SIM_SETTING_FILE="$(
