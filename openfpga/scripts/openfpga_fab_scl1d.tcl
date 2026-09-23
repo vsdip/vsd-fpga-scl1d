@@ -3,7 +3,7 @@
 vpr $::env(VPR_ARCH_FILE) \
     $::env(VPR_TESTBENCH_BLIF) \
     --clock_modeling route \
-    --route_chan_width $::env(OPENFPGA_VPR_ROUTE_CHAN_WIDTH)
+    --route_chan_width 20
 
 read_openfpga_arch -f $::env(OPENFPGA_ARCH_FILE)
 
