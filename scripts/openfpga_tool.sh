@@ -61,6 +61,23 @@ if [[ -z "$OPENFPGA_BIN_RESOLVED" ]]; then
   exit 127
 fi
 
+# Add OpenFPGA build-tree shared libraries for the dynamic loader.
+if [[ -n "${OPENFPGA_PATH:-}" && -d "$OPENFPGA_PATH/build" ]]; then
+  while IFS= read -r library_dir; do
+    case ":${LD_LIBRARY_PATH:-}:" in
+      *":$library_dir:"*) ;;
+      *) LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
+    esac
+  done < <(
+    find "$OPENFPGA_PATH/build" \
+      -type f \
+      -name 'lib*.so*' \
+      -printf '%h\n' 2>/dev/null
+  )
+
+  export LD_LIBRARY_PATH
+fi
+
 if [[ "${1:-}" == "--print-path" ]]; then
   printf '%s\n' "$OPENFPGA_BIN_RESOLVED"
   exit 0
