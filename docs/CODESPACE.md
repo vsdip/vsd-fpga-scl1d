@@ -5,11 +5,21 @@
 3. Upload the archive into the Codespace, then run:
 
 ```bash
-make install-pdk ARCHIVE="$HOME/SCL 1.2 µm PDK.zip"
+# Use an ASCII alias; this avoids locale/encoding issues in wget filenames.
+PDK_ZIP="$(find . -maxdepth 1 -type f -name '*PDK.zip' -print -quit)"
+test -n "$PDK_ZIP"
+cp -- "$PDK_ZIP" ./SCL_PDK.zip
+make install-pdk ARCHIVE="$PWD/SCL_PDK.zip"
 export SCL1D_PDK_ROOT="$PWD/pdk/local"
 make doctor
 make inspect
 ```
+
+If the Codespace enters recovery mode, check `.devcontainer/devcontainer.json`
+before rebuilding. The OpenFPGA image is prebuilt, but it must not be forced to
+run as a guessed `openfpga` user; keep `overrideCommand: true` and let the image
+choose its default user. Also keep `postCreateCommand` non-failing until the PDK
+has been installed.
 
 The default devcontainer uses the OpenFPGA-maintained prebuilt image. For native ARM64 or a pinned local build:
 
