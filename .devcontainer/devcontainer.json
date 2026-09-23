@@ -1,6 +1,7 @@
 {
   "name": "VSD FPGA SCL1D",
   "image": "ghcr.io/lnis-uofu/openfpga-master:latest",
+  "overrideCommand": true,
   "containerEnv": {
     "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
     "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
@@ -14,6 +15,5 @@
       ]
     }
   },
-  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'",
-  "overrideCommand": true
+  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'"
 }
