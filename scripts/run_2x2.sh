@@ -73,8 +73,7 @@ variables = [
 
 for name in variables:
     value = os.environ[name]
-    text = text.replace(f"$::env({name})", "{" + value + "}")
-
+    text = text.replace(f"$::env({name})", value)
 destination.write_text(text)
 PY
 
