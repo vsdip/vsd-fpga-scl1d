@@ -10,6 +10,11 @@ $SCL1D_PDK_ROOT/open_source_scl_c1d/open_pdks/sclc1d/libs.ref/digital_c1d/
   verilog/c1d.v
   cdl/core_iolib_c1d.cdl
   gds/{core_c1d.gds,io_c1d.gds}
+
+$SCL1D_PDK_ROOT/padframe/PadFrame_C1D/
+  pad_frame_gds/frame{1,2,3,4,5}mmx{1,2,3,4,5}mm.gds
+  pad_frame_cdl/frame{1,2,3,4,5}mmx{1,2,3,4,5}mm.cdl
+  klayout/gds/io_pad_c1d.gds
 ```
 
 The repository does not include the PDK archive. `scripts/install-scl1d-pdk.sh` accepts the complete SCL archive and finds this subtree automatically.
