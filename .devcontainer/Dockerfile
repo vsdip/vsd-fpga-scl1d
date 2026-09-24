@@ -34,6 +34,7 @@ RUN apt-get update \
        librsvg2-bin \
        ristretto \
        klayout \
+    && DEBIAN_FRONTEND=noninteractive apt-get purge -y xfce4-screensaver light-locker \
     && usermod -aG sudo ${USERNAME} \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME} \
