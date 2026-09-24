@@ -5,8 +5,17 @@
     "context": ".."
   },
   "remoteUser": "openfpga_user",
-  "overrideCommand": true,
+  "overrideCommand": false,
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "FPGA noVNC Desktop",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    }
+  },
   "containerEnv": {
+    "DISPLAY": ":1",
     "VSD_FPGA_ROOT": "${containerWorkspaceFolder}",
     "SCL1D_PDK_ROOT": "${containerWorkspaceFolder}/pdk/local"
   },
