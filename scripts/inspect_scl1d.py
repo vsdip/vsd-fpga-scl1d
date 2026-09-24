@@ -14,7 +14,7 @@ def main():
     lef=base/'lef'; lib=base/'lib'; cdl=base/'cdl'; gds=base/'gds'
     lines=['# SCL 1.2 µm C1D PDK inventory','',f'Root: `{base}`','']
     lines += ['## Digital payload','', '| Asset | Present |', '|---|---|']
-    for rel in ['lef/tech_c1d.lef','lef/core_c1d.lef','lef/io_c1d.lef','lef/corner_c1d.lef','lib/nldm_tt_27_1p5.lib','lib/nldm_ff_m25_1p55.lib','lib/nldm_ss_125_2p45.lib','verilog/c1d.v','cdl/core_iolib_c1d.cdl','gds/core_c1d.gds','gds/io_c1d.gds']:
+    for rel in ['lef/tech_c1d.lef','lef/core_c1d.lef','lef/io_c1d.lef','lef/corner_c1d.lef','lib/c1d_core_typ.lib','lib/c1d_core_min.lib','lib/c1d_core_max.lib','verilog/c1d.v','cdl/core_iolib_c1d.cdl','gds/core_c1d.gds','gds/io_c1d.gds']:
         lines.append(f'| `{rel}` | {"yes" if (base/rel).is_file() else "NO"} |')
     lines += ['', '## Core cell LEF sizes (µm)', '', '| Cell | Width | Height | Area |', '|---|---:|---:|---:|']
     core=lef/'core_c1d.lef'
@@ -33,7 +33,7 @@ def main():
             if s:
                 w,h=map(float,s.groups()); lines.append(f'| `{m.group(1)}` | {w:g} | {h:g} | {w*h:,.1f} |')
     lines += ['', '## Liberty cell areas', '', '| Cell | Area (Liberty units) |', '|---|---:|']
-    lp=lib/'nldm_tt_27_1p5.lib'
+    lp=lib/'c1d_core_typ.lib'
     if lp.is_file():
         txt=lp.read_text(errors='ignore')
         for m in re.finditer(r'(?m)^\s*cell\s*\(\s*["\']?([^\)"\']+)["\']?\s*\)\s*\{(.*?)(?=^\s*cell\s*\(|\Z)',txt,re.S):
