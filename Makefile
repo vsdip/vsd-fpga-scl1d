@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 ROOT := $(CURDIR)
 
-.PHONY: doctor install-pdk inspect openfpga-shell run-2x2 run-fabric \
+.PHONY: doctor install-pdk inspect openfpga-shell run-2x2 run-fabric install-vpr-gui-prebuilt \
         fabric-diagram install-vpr-gui view-fabric clean
 
 FABRIC_SIZE ?= 2x2
@@ -31,6 +31,8 @@ fabric-diagram:
 install-vpr-gui:
 	bash scripts/install-vpr-gui.sh
 
+install-vpr-gui-prebuilt:
+	bash scripts/install-vpr-gui-prebuilt.sh
 view-fabric:
 	FABRIC_SIZE="$(FABRIC_SIZE)" bash scripts/view-fabric.sh
 
