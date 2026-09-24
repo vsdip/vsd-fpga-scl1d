@@ -4,6 +4,7 @@ vpr $::env(VPR_ARCH_FILE) \
     $::env(VPR_TESTBENCH_BLIF) \
     --clock_modeling route \
     --route_chan_width 100 \
+    --device $::env(FABRIC_DEVICE) \
     --absorb_buffer_luts off \
     --skip_sync_clustering_and_routing_results on
 
