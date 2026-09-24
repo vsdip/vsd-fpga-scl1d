@@ -49,6 +49,22 @@ def main():
     lines += ['', '## GDS payload', '']
     if gds.is_dir():
         for p in sorted(gds.glob('*')): lines.append(f'- `{p.name}` ({p.stat().st_size:,} bytes)')
+            pad = root/'padframe/PadFrame_C1D'
+    lines += ['', '## SCL standard padframes', '',
+              '| Die size | GDS | CDL |', '|---|---|---|']
+    for mm in range(1, 6):
+        name = f'frame{mm}mmx{mm}mm'
+        gd = pad/'pad_frame_gds'/f'{name}.gds'
+        cd = pad/'pad_frame_cdl'/f'{name}.cdl'
+        lines.append(
+            f'| {mm}×{mm} mm | '
+            f'{"yes" if gd.is_file() else "NO"} | '
+            f'{"yes" if cd.is_file() else "NO"} |'
+        )
+    lines.append(
+        f'Pad-cell GDS: '
+        f'{"yes" if (pad/"klayout/gds/io_pad_c1d.gds").is_file() else "NO"}'
+    )
     Path(a.out).write_text('\n'.join(lines)+'\n')
     print(a.out)
 if __name__=='__main__': main()
