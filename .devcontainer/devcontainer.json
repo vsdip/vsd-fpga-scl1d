@@ -28,5 +28,4 @@
       ]
     }
   },
-  "postCreateCommand": "echo 'Codespace ready. Install the SCL PDK, then run: make doctor'"
-}
+"postCreateCommand": "make install-vpr-gui-prebuilt || { echo 'VPR GUI setup failed; retry with make install-vpr-gui-prebuilt' >&2; true; }"}
