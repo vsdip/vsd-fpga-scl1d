@@ -71,13 +71,9 @@
         <input name="I1" num_pins="4" equivalent="full" />
         <input name="I2" num_pins="4" equivalent="full" />
         <input name="I3" num_pins="4" equivalent="full" />
-        <input name="I4" num_pins="4" equivalent="full" />
-        <input name="I5" num_pins="4" equivalent="full" />
-        <input name="I6" num_pins="4" equivalent="full" />
-        <input name="I7" num_pins="4" equivalent="full" />
         <input name="regin" num_pins="1" />
         <input name="scin" num_pins="1" />
-        <output name="O" num_pins="16" equivalent="none" />
+        <output name="O" num_pins="8" equivalent="none" />
         <output name="regout" num_pins="1" />
         <output name="scout" num_pins="1" />
         <clock name="clk" num_pins="1" />
@@ -91,8 +87,8 @@
         <pinlocations pattern="custom">
           <loc side="left">clb.clk</loc>
           <loc side="top">clb.regin clb.scin</loc>
-          <loc side="right">clb.O[7:0] clb.I0 clb.I1 clb.I2 clb.I3</loc>
-          <loc side="bottom">clb.regout clb.scout clb.O[15:8] clb.I4 clb.I5 clb.I6 clb.I7</loc>
+          <loc side="right">clb.O[3:0] clb.I0 clb.I1</loc>
+          <loc side="bottom">clb.regout clb.scout clb.O[7:4] clb.I2 clb.I3</loc>
         </pinlocations>
       </sub_tile>
     </tile>
@@ -279,13 +275,9 @@
       <input name="I1" num_pins="4" equivalent="full" />
       <input name="I2" num_pins="4" equivalent="full" />
       <input name="I3" num_pins="4" equivalent="full" />
-      <input name="I4" num_pins="4" equivalent="full" />
-      <input name="I5" num_pins="4" equivalent="full" />
-      <input name="I6" num_pins="4" equivalent="full" />
-      <input name="I7" num_pins="4" equivalent="full" />
       <input name="regin" num_pins="1" />
       <input name="scin" num_pins="1" />
-      <output name="O" num_pins="16" equivalent="none" />
+      <output name="O" num_pins="8" equivalent="none" />
       <output name="regout" num_pins="1" />
       <output name="scout" num_pins="1" />
       <clock name="clk" num_pins="1" />
@@ -293,7 +285,7 @@
              Each fracturable logic element has a 6-LUT that can alternatively operate as two 5-LUTs with shared inputs.
              The outputs of the fracturable logic element can be optionally registered
         -->
-      <pb_type name="fle" num_pb="8">
+      <pb_type name="fle" num_pb="4">
         <input name="in" num_pins="4" />
         <input name="regin" num_pins="1" />
         <input name="scin" num_pins="1" />
@@ -540,43 +532,35 @@
         </direct>
         <direct name="direct_fle3" input="clb.I3" output="fle[3:3].in">
         </direct>
-        <direct name="direct_fle4" input="clb.I4" output="fle[4:4].in">
-        </direct>
-        <direct name="direct_fle5" input="clb.I5" output="fle[5:5].in">
-        </direct>
-        <direct name="direct_fle6" input="clb.I6" output="fle[6:6].in">
-        </direct>
-        <direct name="direct_fle7" input="clb.I7" output="fle[7:7].in">
-        </direct>
-        <complete name="clks" input="clb.clk" output="fle[7:0].clk">
+        <complete name="clks" input="clb.clk" output="fle[3:0].clk">
         </complete>
         <!-- This way of specifying direct connection to clb outputs is important because this architecture uses automatic spreading of opins.
                By grouping to output pins in this fashion, if a logic block is completely filled by 6-LUTs,
                then the outputs those 6-LUTs take get evenly distributed across all four sides of the CLB instead of clumped on two sides (which is what happens with a more
                naive specification).
           -->
-        <direct name="clbouts1" input="fle[3:0].out[0:1]" output="clb.O[7:0]" />
-        <direct name="clbouts2" input="fle[7:4].out[0:1]" output="clb.O[15:8]" />
+        <direct name="clbouts1" input="fle[1:0].out[0:1]" output="clb.O[3:0]" />
+        <direct name="clbouts2" input="fle[3:2].out[0:1]" output="clb.O[7:4]" />
         <!-- Shift register chain links -->
         <direct name="shift_register_in" input="clb.regin" output="fle[0:0].regin">
           <!-- Put all inter-block carry chain delay on this one edge -->
           <delay_constant max="0.16e-9" in_port="clb.regin" out_port="fle[0:0].regin" />
           <!--pack_pattern name="chain" in_port="clb.regin" out_port="fle[0:0].regin"/-->
         </direct>
-        <direct name="shift_register_out" input="fle[7:7].regout" output="clb.regout">
-          <!--pack_pattern name="chain" in_port="fle[7:7].regout" out_port="clb.regout"/-->
+        <direct name="shift_register_out" input="fle[3:3].regout" output="clb.regout">
+          <!--pack_pattern name="chain" in_port="fle[3:3].regout" out_port="clb.regout"/-->
         </direct>
-        <direct name="shift_register_link" input="fle[6:0].regout" output="fle[7:1].regin">
-          <!--pack_pattern name="chain" in_port="fle[6:0].regout" out_port="fle[7:1].regin"/-->
+        <direct name="shift_register_link" input="fle[2:0].regout" output="fle[3:1].regin">
+          <!--pack_pattern name="chain" in_port="fle[2:0].regout" out_port="fle[3:1].regin"/-->
         </direct>
         <!-- Scan chain links -->
         <direct name="scan_chain_in" input="clb.scin" output="fle[0:0].scin">
           <!-- Put all inter-block carry chain delay on this one edge -->
           <delay_constant max="0.16e-9" in_port="clb.scin" out_port="fle[0:0].scin" />
         </direct>
-        <direct name="scan_chain_out" input="fle[7:7].scout" output="clb.scout">
+        <direct name="scan_chain_out" input="fle[3:3].scout" output="clb.scout">
         </direct>
-        <direct name="scan_chain_link" input="fle[6:0].scout" output="fle[7:1].scin">
+        <direct name="scan_chain_link" input="fle[2:0].scout" output="fle[3:1].scin">
         </direct>
       </interconnect>
       <!-- Every input pin is driven by 15% of the tracks in a channel, every output pin is driven by 10% of the tracks in a channel -->
