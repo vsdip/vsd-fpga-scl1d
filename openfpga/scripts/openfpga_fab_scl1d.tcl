@@ -3,9 +3,9 @@
 vpr $::env(VPR_ARCH_FILE) \
     $::env(VPR_TESTBENCH_BLIF) \
     --clock_modeling route \
-    --route_chan_width 24 \
+    --route_chan_width 20 \
     --device $::env(FABRIC_DEVICE) \
-    --absorb_buffer_luts off \
+    --absorb_buffer_luts off --constant_net_method route \
     --skip_sync_clustering_and_routing_results on
 
 read_openfpga_arch -f $::env(OPENFPGA_ARCH_FILE)

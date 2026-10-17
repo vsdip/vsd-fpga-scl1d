@@ -200,9 +200,6 @@
     <pb_type name="io[physical].iopad" circuit_model_name="vsd_scl_gpio" mode_bits="1" />
     <pb_type name="io[inpad].inpad" physical_pb_type_name="io[physical].iopad" mode_bits="1" />
     <pb_type name="io[outpad].outpad" physical_pb_type_name="io[physical].iopad" mode_bits="0" />
-    <pb_type name="clb">
-      <interconnect name="crossbar" circuit_model_name="vsd_mux_tree" />
-    </pb_type>
     <pb_type name="clb.fle" physical_mode_name="physical" />
     <pb_type name="clb.fle[physical].fabric.frac_logic.frac_lut4" circuit_model_name="vsd_frac_lut4" mode_bits="0" />
     <pb_type name="clb.fle[physical].fabric.ff" circuit_model_name="vsd_scl_user_scan_ff" />
